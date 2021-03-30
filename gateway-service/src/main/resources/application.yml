@@ -1,0 +1,51 @@
+server:
+  port: 9191
+
+
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+        - id: student-service
+          uri: lb://student-service
+          predicates:
+            - Path=/student/**
+#          filters:
+#            - name: Hystrix
+#              args:
+#                name: student-service
+#                fallbackUri: forward:/studentServiceFallBack
+        - id: jobReport-service
+          uri: lb://jobReport-service
+          predicates:
+            - Path=/**
+#          filters:
+#            - name: Hystrix
+#              args:
+#                name: jobReport-service
+#                fallbackUri: forward:/jobServiceFallBack
+
+#                now hystrix configuration
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 4000  #after 4 second fallback method will excuted
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream  #eneable hystrix Dash board
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+     hostname: localhost
